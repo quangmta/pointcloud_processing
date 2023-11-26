@@ -1,0 +1,18 @@
+pointcloud_processing:
+  ros__parameters:
+    tf_x: 0.05
+    tf_y: 0.02
+    tf_z: -0.05
+    tf_roll: 0
+    tf_pitch: 0
+    tf_yaw: 0
+    scan_range_min: 0.06
+    scan_range_max: 5.5
+    scan_angle_min: -2.0944
+    scan_angle_max: 2.0944
+    cam_fov_hor: 69
+    cam_width: 320
+    cam_height: 180
+
+
+
