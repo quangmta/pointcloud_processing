@@ -12,10 +12,6 @@ namespace pointcloud_processing
       const float tf_roll,
       const float tf_pitch,
       const float tf_yaw,
-      const float scan_range_min,
-      const float scan_range_max,
-      const float scan_angle_min,
-      const float scan_angle_max,
       const float cam_fov_hor,
       const int cam_width,
       const int cam_height)
@@ -25,10 +21,6 @@ namespace pointcloud_processing
       tf_roll_(tf_roll),
       tf_pitch_(tf_pitch),
       tf_yaw_(tf_yaw),
-      scan_range_min_(scan_range_min),
-      scan_range_max_(scan_range_max),
-      scan_angle_min_(scan_angle_min),
-      scan_angle_max_(scan_angle_max),
       cam_fov_hor_(cam_fov_hor),
       cam_width_(cam_width),
       cam_height_(cam_height){}
@@ -38,6 +30,7 @@ namespace pointcloud_processing
     sensor_msgs::msg::PointCloud2::UniquePtr PointCloudProcessing::process_msg(const sensor_msgs::msg::PointCloud2::ConstSharedPtr& pointcloud_msg,
         const sensor_msgs::msg::LaserScan::SharedPtr& laser_msg)
     {
+        // laser_msg->range[index]
         // Convert the received message to a PCL point cloud
         pcl::PointCloud<pcl::PointXYZRGB> pcl_cloud;
         pcl::fromROSMsg(*pointcloud_msg, pcl_cloud);

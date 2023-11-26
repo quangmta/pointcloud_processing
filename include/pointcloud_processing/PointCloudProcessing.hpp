@@ -16,10 +16,6 @@ namespace pointcloud_processing
       const float tf_roll,
       const float tf_pitch,
       const float tf_yaw,
-      const float scan_range_min,
-      const float scan_range_max,
-      const float scan_angle_min,
-      const float scan_angle_max,
       const float cam_fov_hor,
       const int cam_width,
       const int cam_height
@@ -36,10 +32,6 @@ namespace pointcloud_processing
     float tf_roll_;
     float tf_pitch_;
     float tf_yaw_;    
-    float scan_range_min_;
-    float scan_range_max_;
-    float scan_angle_min_;
-    float scan_angle_max_;
     float cam_fov_hor_;
     int cam_width_;
     int cam_height_;

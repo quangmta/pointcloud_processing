@@ -31,19 +31,14 @@ namespace pointcloud_processing
         float tf_roll = this->declare_parameter("tf_roll", 0.0);
         float tf_pitch = this->declare_parameter("tf_pitch", 0.0);
         float tf_yaw = this->declare_parameter("tf_yaw", 0.0);
-        float scan_range_min = this->declare_parameter("scan_range_min", 0.06);
-        float scan_range_max = this->declare_parameter("scan_range_max", 5.5);
-        float scan_angle_min = this->declare_parameter("scan_angle_min", -2.0944);
-        float scan_angle_max = this->declare_parameter("scan_angle_max", 2.0944);
         float cam_fov_hor = this->declare_parameter("cam_fov_hor", 69);
         int cam_width = this->declare_parameter("cam_width", 320);
         int cam_height = this->declare_parameter("cam_height", 180);
 
         std::string output_frame = this->declare_parameter("output_frame", "/processed_points");
 
-        processed_point_ = std::make_unique<pointcloud_processing::PointCloudProcessing>(tf_x, tf_y, tf_z, tf_roll, tf_pitch,
-                                                                                         tf_yaw, scan_range_min, scan_range_max,
-                                                                                         scan_angle_min, scan_angle_max, cam_fov_hor, cam_width, cam_height);
+        processed_point_ = std::make_unique<pointcloud_processing::PointCloudProcessing>(tf_x, tf_y, tf_z, tf_roll, tf_pitch,tf_yaw,
+                                                                                         cam_fov_hor, cam_width, cam_height);
     }
 
     PointCloudProcessingNode::~PointCloudProcessingNode() {}
