@@ -38,7 +38,7 @@ namespace pointcloud_processing
         std::string output_frame = this->declare_parameter("output_frame", "/processed_points");
 
         processed_point_ = std::make_unique<pointcloud_processing::PointCloudProcessing>(tf_x, tf_y, tf_z, tf_roll, tf_pitch,tf_yaw,
-                                                                                         cam_fov_hor, cam_width, cam_height);
+                                                                                         cam_fov_hor, cam_fov_ver, cam_width, cam_height);
     }
 
     PointCloudProcessingNode::~PointCloudProcessingNode() {}

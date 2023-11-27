@@ -6,7 +6,8 @@ pointcloud_processing:
     tf_roll: 0
     tf_pitch: 0
     tf_yaw: 0
-    cam_fov_hor: 69
+    cam_fov_hor: 1.204277
+    cam_fov_ver: 1.012291
     cam_width: 320
     cam_height: 180
 

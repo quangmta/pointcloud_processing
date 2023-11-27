@@ -17,6 +17,7 @@ namespace pointcloud_processing
       const float tf_pitch,
       const float tf_yaw,
       const float cam_fov_hor,
+      const float cam_fov_ver,
       const int cam_width,
       const int cam_height
       );
@@ -33,6 +34,7 @@ namespace pointcloud_processing
     float tf_pitch_;
     float tf_yaw_;    
     float cam_fov_hor_;
+    float cam_fov_ver_;
     int cam_width_;
     int cam_height_;
     
