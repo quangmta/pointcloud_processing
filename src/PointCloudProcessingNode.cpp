@@ -31,7 +31,8 @@ namespace pointcloud_processing
         float tf_roll = this->declare_parameter("tf_roll", 0.0);
         float tf_pitch = this->declare_parameter("tf_pitch", 0.0);
         float tf_yaw = this->declare_parameter("tf_yaw", 0.0);
-        float cam_fov_hor = this->declare_parameter("cam_fov_hor", 69);
+        float cam_fov_hor = this->declare_parameter("cam_fov_hor", 1.210734);
+        float cam_fov_ver = this->declare_parameter("cam_fov_ver", 0.742463);
         int cam_width = this->declare_parameter("cam_width", 320);
         int cam_height = this->declare_parameter("cam_height", 180);
 

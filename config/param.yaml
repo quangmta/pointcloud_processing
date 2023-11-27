@@ -1,13 +1,13 @@
 pointcloud_processing:
   ros__parameters:
     tf_x: 0.05
-    tf_y: 0.02
+    tf_y: -0.02
     tf_z: -0.05
     tf_roll: 0
     tf_pitch: 0
     tf_yaw: 0
-    cam_fov_hor: 1.204277
-    cam_fov_ver: 1.012291
+    cam_fov_hor: 1.210734
+    cam_fov_ver: 0.742463
     cam_width: 320
     cam_height: 180
 
