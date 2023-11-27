@@ -31,7 +31,8 @@ namespace pointcloud_processing
         float tf_roll = this->declare_parameter("tf_roll", 0.0);
         float tf_pitch = this->declare_parameter("tf_pitch", 0.0);
         float tf_yaw = this->declare_parameter("tf_yaw", 0.0);
-        float cam_fov_hor = this->declare_parameter("cam_fov_hor", 69);
+        float cam_fov_hor = this->declare_parameter("cam_fov_hor", 1.210734);
+        float cam_fov_ver = this->declare_parameter("cam_fov_ver", 0.742463);
         int cam_width = this->declare_parameter("cam_width", 320);
         int cam_height = this->declare_parameter("cam_height", 180);
 
@@ -48,7 +49,7 @@ namespace pointcloud_processing
         scan_msg_ = scan;
     }
 
-    void PointCloudProcessingNode::PointCloudCallback(const sensor_msgs::msg::PointCloud2::SharedPtr point_msg_)
+    void PointCloudProcessingNode::PointCloudCallback(const sensor_msgs::msg::PointCloud2::SharedPtr pointcloud_msg_)
     {
         if (nullptr == scan_msg_)
         {
@@ -58,9 +59,11 @@ namespace pointcloud_processing
 
         try
         {
-            sensor_msgs::msg::PointCloud2::UniquePtr processed_point_msg = processed_point_->process_msg(point_msg_, scan_msg_);
-            scan_pub_->publish(*scan_msg_);
-            point_pub_->publish(std::move(processed_point_msg));
+            sensor_msgs::msg::PointCloud2::UniquePtr processed_pointcloud_msg_ = std::make_unique<sensor_msgs::msg::PointCloud2>();
+            sensor_msgs::msg::LaserScan::UniquePtr processed_scan_msg_ = std::make_unique<sensor_msgs::msg::LaserScan>();
+            processed_point_->process_msg(pointcloud_msg_, scan_msg_, processed_pointcloud_msg_, processed_scan_msg_);
+            scan_pub_->publish(std::move(processed_scan_msg_));
+            point_pub_->publish(std::move(processed_pointcloud_msg_));
         }
         catch (const std::runtime_error &e)
         {
