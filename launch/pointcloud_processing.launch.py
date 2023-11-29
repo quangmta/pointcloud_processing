@@ -11,7 +11,7 @@ def generate_launch_description():
             package='pointcloud_processing',
             executable='pointcloud_processing_node',
             name='pointcloud_processing_node',
-            remappings=[('/points_in','/camera/depth/color/points'),
+            remappings=[('/points_in','/camera/points'),
                         ('/laser', '/scan')],
             parameters=[param_config]           
         )

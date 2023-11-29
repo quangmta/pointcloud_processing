@@ -3,6 +3,8 @@
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/msg/laser_scan.hpp>
+#include <pcl/point_types.h>
+#include <pcl/point_cloud.h>
 
 namespace pointcloud_processing
 {
@@ -28,6 +30,10 @@ namespace pointcloud_processing
                      const sensor_msgs::msg::LaserScan::UniquePtr &processed_scan_msg);
 
   private:
+    void AlignLaserScan(const sensor_msgs::msg::LaserScan::UniquePtr &align_scan_msg,
+                        const sensor_msgs::msg::LaserScan::ConstSharedPtr &scan_msg);
+    void processPC(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr &pcl_cloud, const sensor_msgs::msg::LaserScan::UniquePtr &scan_msg);
+
     float tf_x_;
     float tf_y_;
     float tf_z_;
