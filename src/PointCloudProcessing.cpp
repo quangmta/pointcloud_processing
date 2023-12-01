@@ -39,7 +39,7 @@ namespace pointcloud_processing
         float coeff_angle = cam_fov_hor_ / (scan_msg->angle_max - scan_msg->angle_min);
 
         if (coeff_angle < 1)
-        {            
+        {
             begin_point_scan_index = std::round((1 - coeff_angle) * scan_msg->ranges.size() / 2);
             end_point_scan_index = std::round((1 + coeff_angle) * scan_msg->ranges.size() / 2);
             float coorY = scan_msg->ranges[end_point_scan_index] * std::tan(cam_angle_max_);
@@ -82,50 +82,94 @@ namespace pointcloud_processing
                                       scan_msg->ranges.begin() + end_point_scan_index + 1);
     }
 
+    // void PointCloudProcessing::processPC(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr &pcl_cloud,
+    //                                      const sensor_msgs::msg::LaserScan::UniquePtr &scan_msg)
+    // {
+    //     for (int col = 0; col < cam_width_; col++)
+    //     {
+    //         // find the row
+    //         int row_offset = cam_height_ / 2;
+    //         // while (!(tf_z_ >= std::min(pcl_cloud->points[(row_offset - 1) * cam_width_ + col].z, pcl_cloud->points[(row_offset + 1) * cam_width_ + col].z) &&
+    //         //          tf_z_ <= std::max(pcl_cloud->points[(row_offset - 1) * cam_width_ + col].z, pcl_cloud->points[(row_offset + 1) * cam_width_ + col].z)))
+    //         //     row_offset++;
+    //         if (tf_z_ < 0)
+    //         {
+    //             while (tf_z_ < pcl_cloud->points[row_offset * cam_width_ + col].z)
+    //             {
+    //                 row_offset++;
+    //                 if (row_offset >= cam_height_)
+    //                     break;
+    //             }
+    //         }
+    //         else
+    //         {
+    //             while (tf_z_ > pcl_cloud->points[row_offset * cam_width_ + col].z)
+    //             {
+    //                 row_offset--;
+    //                 if (row_offset < 0)
+    //                     break;
+    //             }
+    //         }
+    //         auto point = pcl_cloud->points[row_offset * cam_width_ + col];
+    //         float coeff_depth = scan_msg->ranges[scan_msg->ranges.size() - 1 - col * scan_msg->ranges.size() / cam_width_] /
+    //                             std::sqrt(std::pow(point.x, 2) + std::pow(point.y, 2) + std::pow(point.z, 2));
+    //         if (row_offset < cam_height_ && row_offset >= 0)
+    //         {
+    //             for (int row = 0; row < cam_height_; row++)
+    //             {
+    //                 int id = row * cam_width_ + col;
+    //                 pcl_cloud->points[id].x *= coeff_depth;
+    //                 pcl_cloud->points[id].y *= coeff_depth;
+    //                 pcl_cloud->points[id].z *= coeff_depth;
+    //             }
+    //         }
+    //     }
+    // }
+
     void PointCloudProcessing::processPC(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr &pcl_cloud,
                                          const sensor_msgs::msg::LaserScan::UniquePtr &scan_msg)
     {
-        for (int col = 0; col < cam_width_; col++)
+        std::sort(pcl_cloud->points.begin(), pcl_cloud->points.end(), compareX);
+        long unsigned int index = 0;
+        while (index < pcl_cloud->points.size())
         {
-            // find the row
-            int row_offset = cam_height_ / 2;
-            // while (!(tf_z_ >= std::min(pcl_cloud->points[(row_offset - 1) * cam_width_ + col].z, pcl_cloud->points[(row_offset + 1) * cam_width_ + col].z) &&
-            //          tf_z_ <= std::max(pcl_cloud->points[(row_offset - 1) * cam_width_ + col].z, pcl_cloud->points[(row_offset + 1) * cam_width_ + col].z)))
-            //     row_offset++;
-            if (tf_z_ < 0)
+            long unsigned int startId = index;
+            long unsigned int offsetId = index;
+            while (pcl_cloud->points[index].x - pcl_cloud->points[startId].x < 0.005)
             {
-                while (tf_z_ < pcl_cloud->points[row_offset * cam_width_ + col].z)
+                if (std::abs(pcl_cloud->points[index].y - tf_z_) < std::abs(pcl_cloud->points[offsetId].y - tf_z_))
                 {
-                    row_offset++;
-                    if (row_offset >= cam_height_)
-                        break;
+                    offsetId = index;
                 }
+                index++;
+                if (index >= pcl_cloud->points.size())
+                    break;
+            }
+            float angle = std::atan(pcl_cloud->points[offsetId].x / (pcl_cloud->points[offsetId].z - tf_x_));
+            long unsigned int idScan;
+            if (angle < -scan_msg->angle_max)
+            {
+                idScan = scan_msg->ranges.size();
+            }
+            else if (angle > -scan_msg->angle_min)
+            {
+                idScan = 0;
             }
             else
             {
-                while (tf_z_ > pcl_cloud->points[row_offset * cam_width_ + col].z)
-                {
-                    row_offset--;
-                    if (row_offset < 0)
-                        break;
-                }
+                idScan = (-angle - scan_msg->angle_min) / scan_msg->angle_increment;
             }
-            auto point = pcl_cloud->points[row_offset * cam_width_ + col];
-            float coeff_depth = scan_msg->ranges[scan_msg->ranges.size() - 1 - col * scan_msg->ranges.size() / cam_width_] /
-                                std::sqrt(std::pow(point.x, 2) + std::pow(point.y, 2) + std::pow(point.z, 2));
-            if (row_offset < cam_height_ && row_offset >= 0)
+            float coeff_depth = scan_msg->ranges[idScan] /
+                                std::sqrt(std::pow(pcl_cloud->points[offsetId].x + tf_y_, 2) +
+                                          std::pow(pcl_cloud->points[offsetId].z - tf_x_, 2));
+            for (long unsigned int i = startId; i < index; i++)
             {
-                for (int row = 0; row < cam_height_; row++)
-                {
-                    int id = row * cam_width_ + col;
-                    pcl_cloud->points[id].x *= coeff_depth;
-                    pcl_cloud->points[id].y *= coeff_depth;
-                    pcl_cloud->points[id].z *= coeff_depth;
-                }
+                pcl_cloud->points[i].x *= coeff_depth;
+                pcl_cloud->points[i].y *= coeff_depth;
+                pcl_cloud->points[i].z *= coeff_depth;
             }
         }
     }
-
     void PointCloudProcessing::process_msg(const sensor_msgs::msg::PointCloud2::ConstSharedPtr &pointcloud_msg,
                                            const sensor_msgs::msg::LaserScan::ConstSharedPtr &scan_msg,
                                            const sensor_msgs::msg::PointCloud2::UniquePtr &processed_pointcloud_msg,
@@ -138,12 +182,15 @@ namespace pointcloud_processing
         pcl::PointCloud<pcl::PointXYZRGB>::Ptr pcl_cloud(new pcl::PointCloud<pcl::PointXYZRGB>());
         pcl::fromROSMsg(*pointcloud_msg, *pcl_cloud);
 
-        // Delete some point to resize the pointcloud to size of rgb image
-        pcl_cloud->erase(pcl_cloud->begin(), pcl_cloud->begin() + 30 * 640);
-        pcl_cloud->erase(pcl_cloud->begin() + 268800, pcl_cloud->end());
-        // pcl_cloud->height = cam_height_;
+        // Create the filtering object
+        // pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZRGB>());
+        // pcl::VoxelGrid<pcl::PointXYZRGB> sor;
+        // sor.setInputCloud(pcl_cloud);
+        // sor.setLeafSize(0.005f, 0.005f, 0.005f);
+        // sor.filter(*cloud_filtered);
 
         // Recalculate pointcloud according to laser scan
+        // std::sort(cloud_filtered->points.begin(), cloud_filtered->points.end(), compareX);
         processPC(pcl_cloud, processed_scan_msg);
 
         // Create the filtering object
@@ -153,7 +200,12 @@ namespace pointcloud_processing
         sor.setLeafSize(0.01f, 0.01f, 0.01f);
         sor.filter(*cloud_filtered);
 
+        // Delete some point to resize the pointcloud to size of rgb image
+        // cloud_filtered->erase(cloud_filtered->begin(), cloud_filtered->begin() + (int)(cloud_filtered->points.size()/2));
+        // pcl_cloud->erase(pcl_cloud->begin() + cam_height_*cam_height_, pcl_cloud->end());
+        // pcl_cloud->height = cam_height_;
+
         // Convert the processed point cloud back to ROS message format
-        pcl::toROSMsg(*cloud_filtered, *processed_pointcloud_msg);
+        pcl::toROSMsg(*cloud_filtered_2, *processed_pointcloud_msg);
     }
 }

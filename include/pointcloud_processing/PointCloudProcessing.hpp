@@ -34,6 +34,19 @@ namespace pointcloud_processing
                         const sensor_msgs::msg::LaserScan::ConstSharedPtr &scan_msg);
     void processPC(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr &pcl_cloud, const sensor_msgs::msg::LaserScan::UniquePtr &scan_msg);
 
+    static bool compareX(const pcl::PointXYZRGB &point1, const pcl::PointXYZRGB &point2)
+    {
+      return point1.x < point2.x;
+    }
+    static bool compareY(const pcl::PointXYZRGB &point1, const pcl::PointXYZRGB &point2)
+    {
+      return point1.y < point2.y;
+    }
+    static bool compareZ(const pcl::PointXYZRGB &point1, const pcl::PointXYZRGB &point2)
+    {
+      return point1.z < point2.z;
+    }
+
     float tf_x_;
     float tf_y_;
     float tf_z_;
