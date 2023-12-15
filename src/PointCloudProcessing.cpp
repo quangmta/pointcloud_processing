@@ -145,8 +145,11 @@ namespace pointcloud_processing
                 if (index >= pcl_cloud->points.size())
                     break;
             }
+
+            // Find Id of Laser Scan
             float angle = std::atan(pcl_cloud->points[offsetId].x / (pcl_cloud->points[offsetId].z - tf_x_));
             long unsigned int idScan;
+
             if (angle < -scan_msg->angle_max)
             {
                 idScan = scan_msg->ranges.size();
@@ -159,14 +162,18 @@ namespace pointcloud_processing
             {
                 idScan = (-angle - scan_msg->angle_min) / scan_msg->angle_increment;
             }
-            float coeff_depth = scan_msg->ranges[idScan] /
-                                std::sqrt(std::pow(pcl_cloud->points[offsetId].x + tf_y_, 2) +
-                                          std::pow(pcl_cloud->points[offsetId].z - tf_x_, 2));
-            for (long unsigned int i = startId; i < index; i++)
+            // Align depth
+            if (scan_msg->ranges[idScan] > 0.1)
             {
-                pcl_cloud->points[i].x *= coeff_depth;
-                pcl_cloud->points[i].y *= coeff_depth;
-                pcl_cloud->points[i].z *= coeff_depth;
+                float coeff_depth = scan_msg->ranges[idScan] /
+                                    std::sqrt(std::pow(pcl_cloud->points[offsetId].x + tf_y_, 2) +
+                                              std::pow(pcl_cloud->points[offsetId].z - tf_x_, 2));
+                for (long unsigned int i = startId; i < index; i++)
+                {
+                    pcl_cloud->points[i].x *= coeff_depth;
+                    pcl_cloud->points[i].y *= coeff_depth;
+                    pcl_cloud->points[i].z *= coeff_depth;
+                }
             }
         }
     }
